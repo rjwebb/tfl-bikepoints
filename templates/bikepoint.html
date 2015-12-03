@@ -2,13 +2,11 @@
 {% block title %}{{bikepoint.commonName}}{% endblock %}
 
 {% block heading %}
-BikePoint: {{bikepoint.commonName}}
+{{bikepoint.commonName}}
 {% endblock %}
 
 {% block content %}
-  This BikePoint has {{20}}/{{40}} cycles free. <br>
-
   It is situated at {{bikepoint.lat}}, {{bikepoint.lon}}. <br>
 
-  There are {{bikepoint.NbBikes}} / {{bikepoint.NbDocks}} bikes available. <br>
+  There are {{bikepoint.NbBikes}}/{{bikepoint.NbDocks}} bikes available here. <br>
 {% endblock %}
