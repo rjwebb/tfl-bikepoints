@@ -1,0 +1,9 @@
+.error{
+    color:#f00;
+}
+
+#heading,
+#content,
+#footer{
+    padding:10px;
+}

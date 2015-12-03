@@ -1,0 +1,22 @@
+{% extends "base_layout.html" %}
+{% block title %}Query: "{{ query }}"{% endblock %}
+
+{% block heading %}
+BikePoints matching the query: {{ query }}
+{% endblock %}
+
+{% block content %}
+
+{% if bikepoints %}
+  {% for bikepoint in bikepoints %}
+  <ul>
+    <a href="/{{bikepoint.id}}">
+      {{bikepoint.commonName}}
+    </a>
+  </ul>
+  {% endfor %}
+{% else %}
+  No BikePoints found that match the query "{{ query }}".
+{% endif %}
+
+{% endblock %}

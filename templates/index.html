@@ -1,0 +1,22 @@
+{% extends "base_layout.html" %}
+{% block title %}All BikePoints{% endblock %}
+
+{% block errors %}
+{% if error %}
+<div class="error">Error: {{ error }}</div>
+{% endif %}
+{% endblock %}
+
+{% block heading %}
+All BikePoints
+{% endblock %}
+
+{% block content %}
+  {% for bikepoint in bikepoints %}
+  <ul>
+    <a href="/bikepoint/{{bikepoint.id}}">
+      {{bikepoint.commonName}}
+    </a>
+  </ul>
+{% endfor %}
+{% endblock %}
