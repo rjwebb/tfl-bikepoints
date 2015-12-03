@@ -10,7 +10,7 @@ BikePoints matching the query: {{ query }}
 {% if bikepoints %}
   {% for bikepoint in bikepoints %}
   <ul>
-    <a href="/{{bikepoint.id}}">
+    <a href="/bikepoint/{{bikepoint.id}}">
       {{bikepoint.commonName}}
     </a>
   </ul>
