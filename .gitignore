@@ -1,0 +1,6 @@
+*.pyc
+*.py~
+*.css~
+*.html~
+*.md~
+*.gitignore~
