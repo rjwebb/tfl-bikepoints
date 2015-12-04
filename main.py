@@ -3,6 +3,7 @@ from collections import defaultdict
 
 from tfl import TfL
 
+import json
 import tfl_config
 
 # Initialise the Flask web application
@@ -18,7 +19,18 @@ tfl_api = TfL( auth=tfl_config.auth )
 @app.route("/")
 def index(error=""):
     bikepoints = tfl_api.bikepoints()
-    return render_template('index.html', bikepoints=bikepoints, error=error)
+
+    marker_data = [
+        {
+            'pos': [bp['lat'], bp['lon']],
+            'commonName': bp['commonName'],
+            'id': bp['id']
+        } for bp in bikepoints]
+
+    marker_data_json = json.dumps(marker_data)
+    return render_template('index.html', bikepoints=bikepoints,
+                           marker_data=marker_data_json,
+                           error=error)
 
 @app.route("/about")
 def about_page():

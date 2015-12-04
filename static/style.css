@@ -20,3 +20,7 @@ body {
 .theme-showcase .navbar .container {
   width: auto;
 }
+
+#map {
+height: 600px;
+}
