@@ -20,6 +20,10 @@ def index(error=""):
     bikepoints = tfl_api.bikepoints()
     return render_template('index.html', bikepoints=bikepoints, error=error)
 
+@app.route("/about")
+def about_page():
+    return render_template('about.html')
+
 # Controller for a search where no query string is given.
 @app.route("/search/")
 def blank_search_bikepoints():

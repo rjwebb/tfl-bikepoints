@@ -16,7 +16,7 @@
 
     <!-- My CSS style -->
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>{% block title %}{% endblock %} - TfL Information</title>
+    <title>{% block title %}{% endblock %} - TfL Bicycle Information</title>
     {% endblock %}
   </head>
 
@@ -31,13 +31,13 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-          <a class="navbar-brand" href="/">TfL bicycle information</a>
+          <a class="navbar-brand" href="/">TfL Bicycle Information</a>
         </div>
         <div id="navbar" class="collapse navbar-collapse">
           <ul class="nav navbar-nav">
             <!--<a href="/">Home</a>-->
-            <!--<li><a href="#about">About</a></li>
-            <li><a href="#contact">Contact</a></li>-->
+            <li><a href="/about">About</a></li>
+            <!--<li><a href="#contact">Contact</a></li>-->
           </ul>
         </div><!--/.nav-collapse -->
       </div>
