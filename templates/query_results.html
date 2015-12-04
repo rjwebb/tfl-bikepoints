@@ -2,21 +2,21 @@
 {% block title %}Query: "{{ query }}"{% endblock %}
 
 {% block heading %}
-BikePoints matching the query: {{ query }}
+{% if bikepoints %}
+Bicycle hire locations matching the query: {{ query }}
+{% else %}
+No bicycle hire locations found matching the query: {{ query }}
+{% endif %}
 {% endblock %}
 
 {% block content %}
-
 {% if bikepoints %}
+<div class="list-group">
   {% for bikepoint in bikepoints %}
-  <ul>
-    <a href="/bikepoint/{{bikepoint.id}}">
-      {{bikepoint.commonName}}
-    </a>
-  </ul>
+  <a href="/bikepoint/{{bikepoint.id}}" class="list-group-item">
+    {{bikepoint.commonName}}
+  </a>
   {% endfor %}
-{% else %}
-  No BikePoints found that match the query "{{ query }}".
+</div>
 {% endif %}
-
 {% endblock %}

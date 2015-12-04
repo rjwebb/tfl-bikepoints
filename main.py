@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+from flask import Flask, render_template, request
 from collections import defaultdict
 
 from tfl import TfL
@@ -26,19 +26,17 @@ def about_page():
 
 # Controller for a search where no query string is given.
 @app.route("/search/")
-def blank_search_bikepoints():
-    # error - no query given!
-    error = "No query string given!"
-    return index(error=error)
-
-# Controller for search
-@app.route("/search/<query>")
-def search_bikepoints(query):
-    bikepoints = tfl_api.bikepoint_query(query)
-
-    return render_template('query_results.html',
-                           bikepoints=bikepoints,
-                           query=query)
+def search_bikepoints():
+    query = request.args.get('query')
+    if query:
+        bikepoints = tfl_api.bikepoint_query(query)
+        return render_template('query_results.html',
+                               bikepoints=bikepoints,
+                               query=query)
+    else:
+        # error - no query given!
+        error = "No query string given!"
+        return index(error=error)
 
 # Controller for a single BikePoint view
 @app.route("/bikepoint/<bikepoint_id>")

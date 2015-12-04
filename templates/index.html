@@ -1,5 +1,5 @@
 {% extends "base_layout.html" %}
-{% block title %}All BikePoints{% endblock %}
+{% block title %}All locations{% endblock %}
 
 {% block errors %}
 {% if error %}
@@ -8,15 +8,15 @@
 {% endblock %}
 
 {% block heading %}
-All BikePoints
+All bicycle hire locations
 {% endblock %}
 
 {% block content %}
+<div class="list-group">
   {% for bikepoint in bikepoints %}
-  <ul>
-    <a href="/bikepoint/{{bikepoint.id}}">
-      {{bikepoint.commonName}}
-    </a>
-  </ul>
-{% endfor %}
+  <a href="/bikepoint/{{bikepoint.id}}" class="list-group-item">
+    {{bikepoint.commonName}}
+  </a>
+  {% endfor %}
+</div>
 {% endblock %}
