@@ -42,6 +42,7 @@ All bicycle hire locations
 
 {% block extra_scripts %}
 <script type="text/javascript">
+// this just states that we're using ion icons
 L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
 
 // the locations of the bicycle hire locations
@@ -49,17 +50,20 @@ var marker_data = {{ marker_data | safe }};
 
 // create the map
 var map = L.map('map').setView([51.498, -0.119], 12);
-L.tileLayer('https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png',{
-    attribution: 'Maps &copy; Thunderforest, Data\
-        &copy; OpenStreetMap contributors.'
+
+// add the OpenCycleMap layer
+var OCMSrc = 'https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png';
+var OCMAttrib = 'Maps &copy; Thunderforest, Data &copy; OpenStreetMap contributors.';
+L.tileLayer(OCMSrc,{
+    attribution: OCMAttrib
 }).addTo(map);
 
-// create the markers
+// add the markers
 var markers = new L.MarkerClusterGroup();
 for(var i=0;i < marker_data.length;i++){
     var m = marker_data[i];
     var marker = L.marker(m.pos, {
-	title: m.commonName,
+	alt: m.commonName,
 	icon: L.AwesomeMarkers.icon({
 	    icon: 'ion-android-bicycle',
 	    markerColor: 'red'
