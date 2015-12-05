@@ -16,6 +16,10 @@
 <link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
 <script src="{{ url_for('static', filename='leaflet.awesome-markers.min.js') }}"></script>
 
+<!-- Library for Leaflet tooltips -->
+<link href="{{ url_for('static', filename='leaflet.tooltip.css') }}" rel="stylesheet" />
+<script src="{{ url_for('static', filename='leaflet.tooltip.js') }}"></script>
+
 {% endblock %}
 
 {% block errors %}
@@ -67,7 +71,13 @@ for(var i=0;i < marker_data.length;i++){
 	icon: L.AwesomeMarkers.icon({
 	    icon: 'ion-android-bicycle',
 	    markerColor: 'red'
-	})
+	}),
+	tooltip: {
+	    html: m.commonName,
+	    showDelay: 0,
+	    hideDelay: 0,
+	    mouseOffset: L.point(-20,-40)
+	}
     });
     markers.addLayer(marker);
 }
