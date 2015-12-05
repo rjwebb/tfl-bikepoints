@@ -77,7 +77,11 @@ for(var i=0;i < marker_data.length;i++){
 	    showDelay: 0,
 	    hideDelay: 0,
 	    mouseOffset: L.point(-20,-40)
-	}
+	},
+	url: m['url']
+    });
+    marker.on('click', function(e){
+	window.open(this.options.url);
     });
     markers.addLayer(marker);
 }

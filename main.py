@@ -24,7 +24,8 @@ def index(error=""):
         {
             'pos': [bp['lat'], bp['lon']],
             'commonName': bp['commonName'],
-            'id': bp['id']
+            'id': bp['id'],
+            'url': '/bikepoint/%s' % bp['id']
         } for bp in bikepoints]
 
     marker_data_json = json.dumps(marker_data)
