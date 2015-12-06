@@ -1,25 +1,13 @@
 {% extends "base_layout.html" %}
+{% import 'maps.html' as maps %}
+
 {% block title %}All locations{% endblock %}
 
 {% block extra_head %}
-<!-- Leaflet.js stuff (mapping) -->
-<link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
-<script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
-
-<!-- Library for clustering markers together -->
-<script src="https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js"></script>
-<link href="https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css" rel="stylesheet" />
-<link href="https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css" rel="stylesheet" />
-
-<!-- Library for nice custom icons -->
-<link href="{{ url_for('static', filename='leaflet.awesome-markers.css') }}" rel="stylesheet" />
-<link rel="stylesheet" href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
-<script src="{{ url_for('static', filename='leaflet.awesome-markers.min.js') }}"></script>
-
-<!-- Library for Leaflet tooltips -->
-<link href="{{ url_for('static', filename='leaflet.tooltip.css') }}" rel="stylesheet" />
-<script src="{{ url_for('static', filename='leaflet.tooltip.js') }}"></script>
-
+{{ maps.leaflet_js() }}
+{{ maps.leaflet_markercluster_js() }}
+{{ maps.leaflet_awesomemarkers_js() }}
+{{ maps.leaflet_tooltips_js() }}
 {% endblock %}
 
 {% block errors %}
@@ -34,62 +22,8 @@ All bicycle hire locations
 
 {% block content %}
 <div id="map"></div>
-
-<div class="list-group">
-  {% for bikepoint in bikepoints %}
-  <a href="/bikepoint/{{bikepoint.id}}" class="list-group-item">
-    {{bikepoint.commonName}}
-  </a>
-  {% endfor %}
-</div>
 {% endblock %}
 
 {% block extra_scripts %}
-<script type="text/javascript">
-// this just states that we're using ion icons
-L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
-
-// the locations of the bicycle hire locations
-var marker_data = {{ marker_data | safe }};
-
-// create the map
-var map = L.map('map');
-// fit it to show all the markers
-map.fitBounds( {{ map_bounds }} );
-
-// add the OpenCycleMap layer
-var OCMSrc = 'https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png';
-var OCMAttrib = 'Maps &copy; Thunderforest, Data &copy; OpenStreetMap contributors.';
-L.tileLayer(OCMSrc,{
-    attribution: OCMAttrib
-}).addTo(map);
-
-// add the markers
-var markers = new L.MarkerClusterGroup();
-for(var i=0;i < marker_data.length;i++){
-    var m = marker_data[i];
-    var marker = L.marker(m.pos, {
-	alt: m.commonName,
-	icon: L.AwesomeMarkers.icon({
-	    icon: 'ion-android-bicycle',
-	    markerColor: 'red'
-	}),
-	tooltip: {
-	    html: m.commonName,
-	    showDelay: 0,
-	    hideDelay: 0,
-	    mouseOffset: L.point(-20,-40)
-	},
-	url: m['url']
-    });
-    marker.on('click', function(e){
-	window.open(this.options.url);
-    });
-    markers.addLayer(marker);
-}
-map.addLayer(markers);
-
-// add the scale bar
-L.control.scale().addTo(map);
-</script>
+{{ maps.markermap_js(marker_data, map_bounds) }}
 {% endblock %}

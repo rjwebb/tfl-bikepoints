@@ -57,8 +57,14 @@ def search_bikepoints():
     query = request.args.get('query')
     if query:
         bikepoints = tfl_api.bikepoint_query(query)
+        marker_data = extract_marker_data(bikepoints)
+        map_bounds = get_map_bounds(marker_data)
+        marker_data_json = json.dumps(marker_data)
+
         return render_template('query_results.html',
                                bikepoints=bikepoints,
+                               marker_data=marker_data_json,
+                               map_bounds=map_bounds,
                                query=query)
     else:
         # error - no query given
