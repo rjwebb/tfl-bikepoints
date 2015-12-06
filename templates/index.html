@@ -53,7 +53,9 @@ L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
 var marker_data = {{ marker_data | safe }};
 
 // create the map
-var map = L.map('map').setView([51.498, -0.119], 12);
+var map = L.map('map');
+// fit it to show all the markers
+map.fitBounds( {{ map_bounds }} );
 
 // add the OpenCycleMap layer
 var OCMSrc = 'https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png';

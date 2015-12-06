@@ -15,22 +15,36 @@ app.debug = True
 tfl_api = TfL( auth=tfl_config.auth )
 
 
+def get_map_bounds(markers):
+    """
+    Given a list of markers (dicts) with a 'pos' attribute of
+    the form (latitude, longitude), find the bounds of the map
+    needed to show all of the markers.
+    """
+    latitudes = [bp['pos'][0] for bp in markers]
+    longitudes = [bp['pos'][1] for bp in markers]
+
+    return [ [max(latitudes), max(longitudes)],
+             [min(latitudes), min(longitudes)] ]
+
+def extract_marker_data(bikepoints):
+    return [{ 'pos': [bp['lat'], bp['lon']],
+              'commonName': bp['commonName'],
+              'id': bp['id'],
+              'url': '/bikepoint/%s' % bp['id']} for bp in bikepoints]
+
 # Controller for listing all of the BikePoints
 @app.route("/")
 def index(error=""):
     bikepoints = tfl_api.bikepoints()
 
-    marker_data = [
-        {
-            'pos': [bp['lat'], bp['lon']],
-            'commonName': bp['commonName'],
-            'id': bp['id'],
-            'url': '/bikepoint/%s' % bp['id']
-        } for bp in bikepoints]
-
+    marker_data = extract_marker_data(bikepoints)
+    map_bounds = get_map_bounds(marker_data)
     marker_data_json = json.dumps(marker_data)
+
     return render_template('index.html', bikepoints=bikepoints,
                            marker_data=marker_data_json,
+                           map_bounds=map_bounds,
                            error=error)
 
 @app.route("/about")
@@ -47,7 +61,8 @@ def search_bikepoints():
                                bikepoints=bikepoints,
                                query=query)
     else:
-        # error - no query given!
+        # error - no query given
+        # go back to the main index page (i.e. show all things)
         error = "No query string given!"
         return index(error=error)
 
