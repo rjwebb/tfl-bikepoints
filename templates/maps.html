@@ -37,6 +37,7 @@ var map = L.map('map');
 // fit it to show all the markers
 map.fitBounds( {{ map_bounds }} );
 
+
 // add the OpenCycleMap layer
 var OCMSrc = 'https://{s}.tile.thunderforest.com/cycle/{z}/{x}/{y}.png';
 var OCMAttrib = 'Maps &copy; Thunderforest, Data &copy; OpenStreetMap contributors.';
@@ -45,7 +46,9 @@ L.tileLayer(OCMSrc,{
 }).addTo(map);
 
 // add the markers
-var markers = new L.MarkerClusterGroup();
+var markers = new L.MarkerClusterGroup({
+    maxClusterRadius: 60
+});
 for(var i=0;i < marker_data.length;i++){
     var m = marker_data[i];
     var marker = L.marker(m.pos, {
