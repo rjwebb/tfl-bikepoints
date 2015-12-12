@@ -60,6 +60,44 @@ def update_last_edited():
     db.session.add(m)
     db.session.commit()
 
+def update_bike_data_if_old(time_limit=BIKE_DATA_TIMEOUT):
+    last_edited = get_last_edited()
+    now = datetime.datetime.now()
+
+    if now - last_edited > BIKE_DATA_TIMEOUT:
+        update_bike_data()
+
+def update_bike_data():
+    bikepoint_data = TfL( auth=get_auth_from_environ() ).bikepoints()
+
+    start_t = datetime.datetime.now()
+
+    # delete all the old bikepoint data points
+    db.session.query(BikePoint).delete()
+
+    # add the updated bikepoints to the db
+    for bp in bikepoint_data:
+        additional_properties = dict([ (x['key'],x['value']) for x in bp['additionalProperties']])
+
+        params = {
+            'bp_id': bp['id'],
+            'name': bp['commonName'],
+            'lat': bp['lat'],
+            'lon': bp['lon'],
+            'nbDocks': additional_properties['NbDocks'],
+            'nbBikes': additional_properties['NbBikes'],
+            'nbEmptyDocks': additional_properties['NbEmptyDocks']
+        }
+        db.session.add(BikePoint(**params))
+
+    db.session.commit()
+
+    end_t = datetime.datetime.now()
+
+    print "alt database update took", (end_t - start_t)
+
+    update_last_edited()
+
 # Controller for listing all of the BikePoints
 @app.route("/")
 def index(error=""):
