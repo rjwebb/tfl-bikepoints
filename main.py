@@ -8,7 +8,7 @@ import os
 
 # Initialise the Flask web application
 app = Flask(__name__)
-app.debug = True
+app.config.from_object(os.environ['APP_SETTINGS'])
 
 def get_auth_from_environ():
     app_id = os.environ.get('APP_ID',"")
