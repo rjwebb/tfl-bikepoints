@@ -1,5 +1,15 @@
 from app import db
 
+class Meta(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    last_edited = db.Column(db.DateTime())
+
+    def __init__(self, last_edited):
+        self.last_edited = last_edited
+
+    def __repr__(self):
+        return '<last_edited: {}'.format(self.last_edited)
+
 
 class BikePoint(db.Model):
     __tablename__ = 'bikepoints'

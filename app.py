@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from flask.ext.sqlalchemy import SQLAlchemy
 
+import datetime
 import json
 import os
 
@@ -12,7 +13,10 @@ app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 
-from models import BikePoint
+from models import BikePoint, Meta
+
+BIKE_DATA_TIMEOUT = datetime.timedelta(seconds=60)
+
 
 def get_auth_from_environ():
     app_id = os.environ.get('APP_ID',"")
@@ -36,6 +40,25 @@ def extract_marker_data(bikepoints):
               'commonName': bp['commonName'],
               'id': bp['id'],
               'url': '/bikepoint/%s' % bp['id']} for bp in bikepoints]
+
+def get_last_edited():
+    m = db.session.query(Meta).first()
+    if m:
+        return m.last_edited
+    else:
+        return None
+
+def update_last_edited():
+    now = datetime.datetime.now()
+
+    m = Meta(last_edited=now)
+
+    # delete all the previous entries
+    db.session.query(Meta).delete()
+
+    # add the new entry
+    db.session.add(m)
+    db.session.commit()
 
 # Controller for listing all of the BikePoints
 @app.route("/")
