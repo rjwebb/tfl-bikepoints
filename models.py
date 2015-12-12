@@ -14,8 +14,9 @@ class Meta(db.Model):
 class BikePoint(db.Model):
     __tablename__ = 'bikepoints'
 
-    id = db.Column(db.Integer, primary_key=True)
     bp_id = db.Column(db.String(), primary_key=True)
+
+    name = db.Column(db.String())
 
     lat = db.Column(db.Float())
     lon = db.Column(db.Float())
@@ -24,8 +25,10 @@ class BikePoint(db.Model):
     nbBikes = db.Column(db.Integer())
     nbEmptyDocks = db.Column(db.Integer())
 
-    def __init__(self, bp_id, lat, lon, nbDocks, nbBikes, nbEmptyDocks):
+    def __init__(self, bp_id, name, lat, lon, nbDocks, nbBikes, nbEmptyDocks):
         self.bp_id = bp_id
+
+        self.name = name
 
         self.lat = lat
         self.lon = lon
