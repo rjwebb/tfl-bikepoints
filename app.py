@@ -1,14 +1,18 @@
 from flask import Flask, render_template, request
-from collections import defaultdict
-
-from tfl import TfL
+from flask.ext.sqlalchemy import SQLAlchemy
 
 import json
 import os
 
+from collections import defaultdict
+from tfl import TfL
+
 # Initialise the Flask web application
 app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
+db = SQLAlchemy(app)
+
+from models import BikePoint
 
 def get_auth_from_environ():
     app_id = os.environ.get('APP_ID',"")
