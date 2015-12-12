@@ -4,16 +4,16 @@ from collections import defaultdict
 from tfl import TfL
 
 import json
-import tfl_config
+import os
 
 # Initialise the Flask web application
 app = Flask(__name__)
 app.debug = True
 
-# Initialise the TFL API object - this encapsulates the methods for
-# retrieving data, and 'holds' the authentication information.
-tfl_api = TfL( auth=tfl_config.auth )
-
+def get_auth_from_environ():
+    app_id = os.environ.get('APP_ID',"")
+    app_key = os.environ.get('APP_KEY',"")
+    return app_id, app_key
 
 def get_map_bounds(markers):
     """
@@ -36,7 +36,7 @@ def extract_marker_data(bikepoints):
 # Controller for listing all of the BikePoints
 @app.route("/")
 def index(error=""):
-    bikepoints = tfl_api.bikepoints()
+    bikepoints = TfL( auth=get_auth_from_environ() ).bikepoints()
 
     marker_data = extract_marker_data(bikepoints)
     map_bounds = get_map_bounds(marker_data)
@@ -56,7 +56,7 @@ def about_page():
 def search_bikepoints():
     query = request.args.get('query')
     if query:
-        bikepoints = tfl_api.bikepoint_query(query)
+        bikepoints = TfL( auth=get_auth_from_environ() ).bikepoint_query(query)
         marker_data = extract_marker_data(bikepoints)
         map_bounds = get_map_bounds(marker_data)
         marker_data_json = json.dumps(marker_data)
@@ -75,7 +75,7 @@ def search_bikepoints():
 # Controller for a single BikePoint view
 @app.route("/bikepoint/<bikepoint_id>")
 def single_bikepoint(bikepoint_id):
-    bikepoint = tfl_api.bikepoint(bikepoint_id)
+    bikepoint = TfL( auth=get_auth_from_environ() ).bikepoint(bikepoint_id)
 
     for p in bikepoint['additionalProperties']:
         bikepoint[p['key']] = p['value']
