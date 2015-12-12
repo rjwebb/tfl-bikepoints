@@ -52,13 +52,13 @@ var markers = new L.MarkerClusterGroup({
 for(var i=0;i < marker_data.length;i++){
     var m = marker_data[i];
     var marker = L.marker(m.pos, {
-	alt: m.commonName,
+	alt: m.name,
 	icon: L.AwesomeMarkers.icon({
 	    icon: 'ion-android-bicycle',
 	    markerColor: 'red'
 	}),
 	tooltip: {
-	    html: m.commonName,
+	    html: m.name,
 	    showDelay: 0,
 	    hideDelay: 0,
 	    mouseOffset: L.point(-20,-40)

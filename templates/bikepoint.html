@@ -1,12 +1,12 @@
 {% extends "base_layout.html" %}
-{% block title %}{{bikepoint.commonName}}{% endblock %}
+{% block title %}{{bikepoint.name}}{% endblock %}
 
 {% block heading %}
-{{bikepoint.commonName}}
+{{bikepoint.name}}
 {% endblock %}
 
 {% block content %}
   It is situated at {{bikepoint.lat}}, {{bikepoint.lon}}. <br>
 
-  There are {{bikepoint.NbBikes}}/{{bikepoint.NbDocks}} bikes available here. <br>
+  There are {{bikepoint.nbBikes}}/{{bikepoint.nbDocks}} bikes available here. <br>
 {% endblock %}

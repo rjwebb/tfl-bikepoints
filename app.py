@@ -23,23 +23,26 @@ def get_auth_from_environ():
     app_key = os.environ.get('APP_KEY',"")
     return app_id, app_key
 
-def get_map_bounds(markers):
+def get_map_bounds(bikepoints):
     """
-    Given a list of markers (dicts) with a 'pos' attribute of
-    the form (latitude, longitude), find the bounds of the map
-    needed to show all of the markers.
+    Given a list of BikePoint objects, find the
+    bounds of the area that encloses them all.
     """
-    latitudes = [bp['pos'][0] for bp in markers]
-    longitudes = [bp['pos'][1] for bp in markers]
 
-    return [ [max(latitudes), max(longitudes)],
-             [min(latitudes), min(longitudes)] ]
+    if len(bikepoints) == 0:
+        return None
+    else:
+        latitudes = [bp.lat for bp in bikepoints]
+        longitudes = [bp.lon for bp in bikepoints]
+
+        return [ [max(latitudes), max(longitudes)],
+                 [min(latitudes), min(longitudes)] ]
 
 def extract_marker_data(bikepoints):
-    return [{ 'pos': [bp['lat'], bp['lon']],
-              'commonName': bp['commonName'],
-              'id': bp['id'],
-              'url': '/bikepoint/%s' % bp['id']} for bp in bikepoints]
+    return [{ 'pos': [bp.lat, bp.lon],
+              'name': bp.name,
+              'id': bp.bp_id,
+              'url': '/bikepoint/%s' % bp.bp_id} for bp in bikepoints]
 
 def get_last_edited():
     m = db.session.query(Meta).first()
@@ -101,10 +104,11 @@ def update_bike_data():
 # Controller for listing all of the BikePoints
 @app.route("/")
 def index(error=""):
-    bikepoints = TfL( auth=get_auth_from_environ() ).bikepoints()
+    update_bike_data_if_old()
+    bikepoints = list(db.session.query(BikePoint).all())
 
     marker_data = extract_marker_data(bikepoints)
-    map_bounds = get_map_bounds(marker_data)
+    map_bounds = get_map_bounds(bikepoints)
     marker_data_json = json.dumps(marker_data)
 
     return render_template('index.html', bikepoints=bikepoints,
@@ -121,9 +125,13 @@ def about_page():
 def search_bikepoints():
     query = request.args.get('query')
     if query:
-        bikepoints = TfL( auth=get_auth_from_environ() ).bikepoint_query(query)
+        update_bike_data_if_old()
+
+        ilike_q = "%{}%".format(query)
+        bikepoints = BikePoint.query.filter(BikePoint.name.ilike(ilike_q)).all()
+
         marker_data = extract_marker_data(bikepoints)
-        map_bounds = get_map_bounds(marker_data)
+        map_bounds = get_map_bounds(bikepoints)
         marker_data_json = json.dumps(marker_data)
 
         return render_template('query_results.html',
@@ -131,6 +139,7 @@ def search_bikepoints():
                                marker_data=marker_data_json,
                                map_bounds=map_bounds,
                                query=query)
+
     else:
         # error - no query given
         # go back to the main index page (i.e. show all things)
@@ -140,12 +149,13 @@ def search_bikepoints():
 # Controller for a single BikePoint view
 @app.route("/bikepoint/<bikepoint_id>")
 def single_bikepoint(bikepoint_id):
-    bikepoint = TfL( auth=get_auth_from_environ() ).bikepoint(bikepoint_id)
+    update_bike_data_if_old()
 
-    for p in bikepoint['additionalProperties']:
-        bikepoint[p['key']] = p['value']
-
-    return render_template('bikepoint.html', bikepoint=bikepoint)
+    bikepoint = db.session.query(BikePoint).get(bikepoint_id)
+    if bikepoint:
+        return render_template('bikepoint.html', bikepoint=bikepoint)
+    else:
+        pass # todo: a 404 page
 
 # Boilerplate ;)
 if __name__ == "__main__":
