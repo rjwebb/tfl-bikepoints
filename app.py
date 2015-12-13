@@ -23,21 +23,6 @@ def get_auth_from_environ():
     app_key = os.environ.get('APP_KEY',"")
     return app_id, app_key
 
-def get_map_bounds(bikepoints):
-    """
-    Given a list of BikePoint objects, find the
-    bounds of the area that encloses them all.
-    """
-
-    if len(bikepoints) == 0:
-        return None
-    else:
-        latitudes = [bp.lat for bp in bikepoints]
-        longitudes = [bp.lon for bp in bikepoints]
-
-        return [ [max(latitudes), max(longitudes)],
-                 [min(latitudes), min(longitudes)] ]
-
 def extract_marker_data(bikepoints):
     return [{ 'pos': [bp.lat, bp.lon],
               'name': bp.name,
@@ -109,12 +94,11 @@ def index(error=""):
     bikepoints = list(db.session.query(BikePoint).all())
 
     marker_data = extract_marker_data(bikepoints)
-    map_bounds = get_map_bounds(bikepoints)
+    #map_bounds = get_map_bounds(bikepoints)
     marker_data_json = json.dumps(marker_data)
 
     return render_template('index.html', bikepoints=bikepoints,
                            marker_data=marker_data_json,
-                           map_bounds=map_bounds,
                            error=error)
 
 @app.route("/about")
@@ -132,13 +116,12 @@ def search_bikepoints():
         bikepoints = BikePoint.query.filter(BikePoint.name.ilike(ilike_q)).all()
 
         marker_data = extract_marker_data(bikepoints)
-        map_bounds = get_map_bounds(bikepoints)
+        #map_bounds = get_map_bounds(bikepoints)
         marker_data_json = json.dumps(marker_data)
 
         return render_template('query_results.html',
                                bikepoints=bikepoints,
                                marker_data=marker_data_json,
-                               map_bounds=map_bounds,
                                query=query)
 
     else:
