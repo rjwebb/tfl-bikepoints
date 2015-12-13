@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, abort
 from flask.ext.sqlalchemy import SQLAlchemy
 
 import datetime
@@ -156,7 +156,12 @@ def single_bikepoint(bikepoint_id):
     if bikepoint:
         return render_template('bikepoint.html', bikepoint=bikepoint)
     else:
-        pass # todo: a 404 page
+        abort(404)
+
+
+@app.errorhandler(404)
+def page_not_found(e):
+    return render_template('404.html'), 404
 
 # Boilerplate ;)
 if __name__ == "__main__":
