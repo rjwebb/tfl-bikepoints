@@ -67,10 +67,11 @@ def update_bike_data_if_old(time_limit=BIKE_DATA_TIMEOUT):
     last_edited = get_last_edited()
     now = datetime.datetime.now()
 
-    if now - last_edited > BIKE_DATA_TIMEOUT:
+    if not last_edited or now - last_edited > BIKE_DATA_TIMEOUT:
         update_bike_data()
 
 def update_bike_data():
+    print "requesting more data from TfL"
     bikepoint_data = TfL( auth=get_auth_from_environ() ).bikepoints()
 
     start_t = datetime.datetime.now()
