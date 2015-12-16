@@ -1,7 +1,15 @@
 {% extends "base_layout.html" %}
 {% import 'maps.html' as maps %}
 
-{% block title %}All locations{% endblock %}
+
+{% block title %}
+{% if query %}
+"{{ query }}"
+{% else %}
+All locations
+{% endif %}
+{% endblock %}
+
 
 {% block extra_head %}
 {{ maps.leaflet_js() }}
@@ -10,19 +18,37 @@
 {{ maps.leaflet_tooltips_js() }}
 {% endblock %}
 
+
 {% block errors %}
 {% if error %}
 <div class="error">Error: {{ error }}</div>
 {% endif %}
 {% endblock %}
 
+
 {% block heading %}
+{% if query %}
+
+{% if bikepoints %}
+Bicycle hire locations matching the query: {{ query }}
+{% else %}
+No bicycle hire locations found matching the query: {{ query }}
+{% endif %}
+
+{% else %}
+
 All bicycle hire locations
+
+{% endif %}
 {% endblock %}
 
+
 {% block content %}
+{% if bikepoints %}
 <div id="map"></div>
+{% endif %}
 {% endblock %}
+
 
 {% block extra_scripts %}
 {{ maps.markermap_js(marker_data, map_bounds) }}

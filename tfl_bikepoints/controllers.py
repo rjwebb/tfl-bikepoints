@@ -97,7 +97,7 @@ def index(error=""):
     marker_data = extract_marker_data(bikepoints)
     marker_data_json = json.dumps(marker_data)
 
-    return render_template('index.html', bikepoints=bikepoints,
+    return render_template('bikepoint_list.html', bikepoints=bikepoints,
                            marker_data=marker_data_json,
                            error=error)
 
@@ -120,7 +120,7 @@ def search_bikepoints():
         marker_data = extract_marker_data(bikepoints)
         marker_data_json = json.dumps(marker_data)
 
-        return render_template('query_results.html',
+        return render_template('bikepoint_list.html',
                                bikepoints=bikepoints,
                                marker_data=marker_data_json,
                                query=query)
