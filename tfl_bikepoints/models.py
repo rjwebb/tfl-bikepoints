@@ -1,4 +1,4 @@
-from app import db
+from tfl_bikepoints import db
 
 class Meta(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -8,7 +8,7 @@ class Meta(db.Model):
         self.last_edited = last_edited
 
     def __repr__(self):
-        return '<last_edited: {}'.format(self.last_edited)
+        return '<last_edited: {}>'.format(self.last_edited)
 
 
 class BikePoint(db.Model):
@@ -36,6 +36,12 @@ class BikePoint(db.Model):
         self.nbDocks = nbDocks
         self.nbBikes = nbBikes
         self.nbEmptyDocks = nbEmptyDocks
+
+    def to_marker_data(self):
+        return { 'pos': [self.lat, self.lon],
+                 'name': self.name,
+                 'id': self.bp_id,
+                 'url': '/bikepoint/%s' % self.bp_id}
 
     def __repr__(self):
         return '<bp_id {}>'.format(self.bp_id)

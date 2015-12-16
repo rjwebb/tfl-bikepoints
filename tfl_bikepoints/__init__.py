@@ -5,7 +5,6 @@ import datetime
 import json
 import os
 
-from collections import defaultdict
 from tfl import TfL
 
 # Initialise the Flask web application
@@ -13,9 +12,9 @@ app = Flask(__name__)
 app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 
-from models import BikePoint, Meta
-
 BIKE_DATA_TIMEOUT = datetime.timedelta(seconds=60)
+
+from tfl_bikepoints.models import BikePoint, Meta
 
 
 def get_auth_from_environ():
@@ -24,10 +23,11 @@ def get_auth_from_environ():
     return app_id, app_key
 
 def extract_marker_data(bikepoints):
-    return [{ 'pos': [bp.lat, bp.lon],
-              'name': bp.name,
-              'id': bp.bp_id,
-              'url': '/bikepoint/%s' % bp.bp_id} for bp in bikepoints]
+    """
+    This method returns a simple python data structure that can
+    then be encoded as JSON to be displayed by Leaflet.
+    """
+    return [bp.to_marker_data() for bp in bikepoints]
 
 def get_last_edited():
     m = db.session.query(Meta).first()
@@ -68,33 +68,34 @@ def update_bike_data():
     for bp in bikepoint_data:
         additional_properties = dict([ (x['key'],x['value']) for x in bp['additionalProperties']])
 
-        params = {
-            'bp_id': bp['id'],
-            'name': bp['commonName'],
-            'lat': bp['lat'],
-            'lon': bp['lon'],
-            'nbDocks': additional_properties['NbDocks'],
-            'nbBikes': additional_properties['NbBikes'],
-            'nbEmptyDocks': additional_properties['NbEmptyDocks']
-        }
-        db.session.add(BikePoint(**params))
+        new_bp = BikePoint(
+            bp_id=bp['id'],
+            name=bp['commonName'],
+            lat=bp['lat'],
+            lon=bp['lon'],
+            nbDocks=additional_properties['NbDocks'],
+            nbBikes=additional_properties['NbBikes'],
+            nbEmptyDocks=additional_properties['NbEmptyDocks'])
+
+        db.session.add(new_bp)
 
     db.session.commit()
 
     end_t = datetime.datetime.now()
 
-    print "alt database update took", (end_t - start_t)
+    print "database update took", (end_t - start_t)
 
     update_last_edited()
+
 
 # Controller for listing all of the BikePoints
 @app.route("/")
 def index(error=""):
     update_bike_data_if_old()
-    bikepoints = list(db.session.query(BikePoint).all())
+
+    bikepoints = db.session.query(BikePoint).all()
 
     marker_data = extract_marker_data(bikepoints)
-    #map_bounds = get_map_bounds(bikepoints)
     marker_data_json = json.dumps(marker_data)
 
     return render_template('index.html', bikepoints=bikepoints,
@@ -109,6 +110,8 @@ def about_page():
 @app.route("/search/")
 def search_bikepoints():
     query = request.args.get('query')
+
+    # make sure it wasn't just a blank query
     if query:
         update_bike_data_if_old()
 
@@ -116,7 +119,6 @@ def search_bikepoints():
         bikepoints = BikePoint.query.filter(BikePoint.name.ilike(ilike_q)).all()
 
         marker_data = extract_marker_data(bikepoints)
-        #map_bounds = get_map_bounds(bikepoints)
         marker_data_json = json.dumps(marker_data)
 
         return render_template('query_results.html',
@@ -136,16 +138,12 @@ def single_bikepoint(bikepoint_id):
     update_bike_data_if_old()
 
     bikepoint = db.session.query(BikePoint).get(bikepoint_id)
+
     if bikepoint:
         return render_template('bikepoint.html', bikepoint=bikepoint)
     else:
         abort(404)
 
-
 @app.errorhandler(404)
 def page_not_found(e):
     return render_template('404.html'), 404
-
-# Boilerplate ;)
-if __name__ == "__main__":
-    app.run()
