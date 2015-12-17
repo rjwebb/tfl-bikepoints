@@ -24,13 +24,13 @@
 <script src="{{ url_for('static', filename='leaflet.tooltip.js') }}"></script>
 {% endmacro %}
 
-{% macro markermap_js(marker_data, map_bounds) -%}
+{% macro markermap_js(bikepoints) -%}
 <script type="text/javascript">
 // this just states that we're using ion icons
 L.AwesomeMarkers.Icon.prototype.options.prefix = 'ion';
 
 // the locations of the bicycle hire locations
-var marker_data = {{ marker_data | safe }};
+var marker_data = {{ bikepoints | as_markers | safe }};
 
 // create the map
 var map = L.map('map');

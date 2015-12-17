@@ -9,3 +9,4 @@ app.config.from_object(os.environ['APP_SETTINGS'])
 db = SQLAlchemy(app)
 
 import tfl_bikepoints.controllers
+import tfl_bikepoints.filters

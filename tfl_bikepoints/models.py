@@ -37,12 +37,6 @@ class BikePoint(db.Model):
         self.nbBikes = nbBikes
         self.nbEmptyDocks = nbEmptyDocks
 
-    def to_marker_data(self):
-        return { 'pos': [self.lat, self.lon],
-                 'name': self.name,
-                 'id': self.bp_id,
-                 'url': '/bikepoint/%s' % self.bp_id}
-
     def __repr__(self):
         return '<bp_id {}>'.format(self.bp_id)
 

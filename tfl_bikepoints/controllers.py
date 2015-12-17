@@ -21,13 +21,6 @@ def get_auth_from_environ():
     app_key = os.environ.get('APP_KEY',"")
     return app_id, app_key
 
-def extract_marker_json(bikepoints):
-    """
-    This method returns a JSON representation of the bikepoints,
-    to be displayed by Leaflet
-    """
-    return json.dumps([bp.to_marker_data() for bp in bikepoints])
-
 def get_last_edited():
     m = db.session.query(Meta).first()
     if m:
@@ -94,10 +87,7 @@ def index(error=""):
 
     bikepoints = db.session.query(BikePoint).all()
 
-    marker_data_json = extract_marker_json(bikepoints)
-
     return render_template('bikepoint_list.html', bikepoints=bikepoints,
-                           marker_data=marker_data_json,
                            error=error)
 
 @app.route("/about")
@@ -115,12 +105,8 @@ def search_bikepoints():
 
         ilike_q = "%{}%".format(query)
         bikepoints = BikePoint.query.filter(BikePoint.name.ilike(ilike_q)).all()
-
-        marker_data_json = extract_marker_json(bikepoints)
-
         return render_template('bikepoint_list.html',
                                bikepoints=bikepoints,
-                               marker_data=marker_data_json,
                                query=query)
 
     else:
