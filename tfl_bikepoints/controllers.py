@@ -137,7 +137,7 @@ def single_bikepoint(bikepoint_id):
     bikepoint = db.session.query(BikePoint).get(bikepoint_id)
 
     if bikepoint:
-        return render_template('bikepoint.html', bikepoint=bikepoint)
+        return render_template('bikepoint_detail.html', bikepoint=bikepoint)
     else:
         abort(404)
 
