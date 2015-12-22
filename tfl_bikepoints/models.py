@@ -37,6 +37,20 @@ class BikePoint(db.Model):
         self.nbBikes = nbBikes
         self.nbEmptyDocks = nbEmptyDocks
 
+
+    @property
+    def serialize(self):
+        """Return object data in an easily serializeable format"""
+        return {
+            'id' : self.bp_id,
+            'name' : self.name,
+            'lat' : self.lat,
+            'lon' : self.lon,
+            'nbDocks' : self.nbDocks,
+            'nbBikes' : self.nbBikes,
+            'nbEmptyDocks' : self.nbEmptyDocks
+        }
+
     def __repr__(self):
         return '<bp_id {}>'.format(self.bp_id)
 

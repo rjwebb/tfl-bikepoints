@@ -4,7 +4,7 @@ import json
 import os
 
 #flask
-from flask import render_template, request, abort
+from flask import render_template, request, abort, jsonify
 
 #tfl api
 from tfl import TfL
@@ -90,6 +90,8 @@ def index(error=""):
     return render_template('bikepoint_list.html', bikepoints=bikepoints,
                            error=error)
 
+
+
 @app.route("/about")
 def about_page():
     return render_template('about.html')
@@ -126,6 +128,49 @@ def single_bikepoint(bikepoint_id):
         return render_template('bikepoint_detail.html', bikepoint=bikepoint)
     else:
         abort(404)
+
+
+
+"""
+Controllers for returning information in JSON format
+"""
+
+@app.route("/bikepoint_api/<bikepoint_id>")
+def single_bikepoint_json(bikepoint_id):
+    update_bike_data_if_old()
+
+    bikepoint = db.session.query(BikePoint).get(bikepoint_id)
+
+    if bikepoint:
+        return jsonify(bikepoint.serialize)
+    else:
+        abort(404)
+
+@app.route("/bikepoint_api")
+def all_bikepoints_json():
+    update_bike_data_if_old()
+
+    bikepoints = db.session.query(BikePoint).all()
+
+    return jsonify(json_list=[bp.serialize for bp in bikepoints])
+
+# Controller for a search where no query string is given.
+@app.route("/search_api/")
+def search_bikepoints_json():
+    query = request.args.get('query')
+
+    # make sure it wasn't just a blank query
+    if query:
+        update_bike_data_if_old()
+
+        ilike_q = "%{}%".format(query)
+        bikepoints = BikePoint.query.filter(BikePoint.name.ilike(ilike_q)).all()
+        return jsonify(json_list=[bp.serialize for bp in bikepoints])
+
+    else:
+        error = "No query string given"
+        return jsonify(error=error), 400
+
 
 @app.errorhandler(404)
 def page_not_found(e):
