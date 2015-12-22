@@ -87,7 +87,7 @@ def index(error=""):
 
     bikepoints = db.session.query(BikePoint).all()
 
-    return render_template('bikepoint_list.html', bikepoints=bikepoints,
+    return render_template('bikepoints_map.html', bikepoints=bikepoints,
                            error=error)
 
 
@@ -107,7 +107,7 @@ def search_bikepoints():
 
         ilike_q = "%{}%".format(query)
         bikepoints = BikePoint.query.filter(BikePoint.name.ilike(ilike_q)).all()
-        return render_template('bikepoint_list.html',
+        return render_template('bikepoints_map.html',
                                bikepoints=bikepoints,
                                query=query)
 
