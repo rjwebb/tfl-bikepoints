@@ -1,3 +1,4 @@
+import datetime
 from tfl_bikepoints import db
 
 class Meta(db.Model):
@@ -9,6 +10,32 @@ class Meta(db.Model):
 
     def __repr__(self):
         return '<last_edited: {}>'.format(self.last_edited)
+
+
+    @staticmethod
+    def get_last_edited():
+        m = db.session.query(Meta).first()
+
+        if m:
+            return m.last_edited
+        else:
+            return None
+
+
+    @staticmethod
+    def update_last_edited():
+        now = datetime.datetime.now()
+
+        m = Meta(last_edited=now)
+
+        # delete all the previous entries
+        db.session.query(Meta).delete()
+
+        # add the new entry
+        db.session.add(m)
+        db.session.commit()
+
+        return now
 
 
 class BikePoint(db.Model):

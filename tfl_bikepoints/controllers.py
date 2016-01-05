@@ -21,27 +21,8 @@ def get_auth_from_environ():
     app_key = os.environ.get('APP_KEY',"")
     return app_id, app_key
 
-def get_last_edited():
-    m = db.session.query(Meta).first()
-    if m:
-        return m.last_edited
-    else:
-        return None
-
-def update_last_edited():
-    now = datetime.datetime.now()
-
-    m = Meta(last_edited=now)
-
-    # delete all the previous entries
-    db.session.query(Meta).delete()
-
-    # add the new entry
-    db.session.add(m)
-    db.session.commit()
-
 def update_bike_data_if_old(time_limit=BIKE_DATA_TIMEOUT):
-    last_edited = get_last_edited()
+    last_edited = Meta.get_last_edited()
     now = datetime.datetime.now()
 
     if not last_edited or now - last_edited > BIKE_DATA_TIMEOUT:
@@ -77,7 +58,7 @@ def update_bike_data():
 
     print "database update took", (end_t - start_t)
 
-    update_last_edited()
+    Meta.update_last_edited()
 
 
 # Controller for listing all of the BikePoints
