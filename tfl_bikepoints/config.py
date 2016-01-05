@@ -1,4 +1,5 @@
 import os
+import datetime
 
 class Config(object):
     DEBUG = False
@@ -7,6 +8,8 @@ class Config(object):
     SECRET_KEY = os.environ['SECRET_KEY']
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_TRACK_MODIFICATIONS = True
+
+    BIKE_DATA_TIMEOUT = datetime.timedelta(seconds=60)
 
 
 class ProductionConfig(Config):

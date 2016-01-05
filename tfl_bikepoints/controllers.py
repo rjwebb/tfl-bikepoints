@@ -13,19 +13,18 @@ from tfl import TfL
 from tfl_bikepoints import app, db
 from tfl_bikepoints.models import BikePoint, Meta
 
-BIKE_DATA_TIMEOUT = datetime.timedelta(seconds=60)
 
-
-def update_bike_data_if_old(time_limit=BIKE_DATA_TIMEOUT):
+def update_bike_data_if_old(time_limit=app.config['BIKE_DATA_TIMEOUT']):
     last_edited = Meta.get_last_edited()
     now = datetime.datetime.now()
 
     # if the database is due an update
-    if not last_edited or now - last_edited > BIKE_DATA_TIMEOUT:
+    if not last_edited or now - last_edited > time_limit:
         update_bike_data()
 
         # update the last edited timestamp
         Meta.update_last_edited()
+
 
 def update_bike_data():
     print "requesting more data from TfL"
@@ -69,10 +68,10 @@ def index(error=""):
                            error=error)
 
 
-
 @app.route("/about")
 def about_page():
     return render_template('about.html')
+
 
 # Controller for a search where no query string is given.
 @app.route("/search/")
@@ -94,6 +93,7 @@ def search_bikepoints():
         # go back to the main index page (i.e. show all things)
         error = "No query string given!"
         return index(error=error)
+
 
 # Controller for a single BikePoint view
 @app.route("/bikepoint/<bikepoint_id>")
