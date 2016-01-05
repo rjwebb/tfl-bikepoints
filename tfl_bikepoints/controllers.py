@@ -15,6 +15,10 @@ from tfl_bikepoints.models import BikePoint, Meta
 
 
 def update_bike_data_if_old(time_limit=app.config['BIKE_DATA_TIMEOUT']):
+    """
+    If the bike point data is out of date by more than time_limit,
+    then update it from the TfL API
+    """
     last_edited = Meta.get_last_edited()
     now = datetime.datetime.now()
 
@@ -27,6 +31,9 @@ def update_bike_data_if_old(time_limit=app.config['BIKE_DATA_TIMEOUT']):
 
 
 def update_bike_data():
+    """
+    Update the bike point data from the TfL API
+    """
     print "requesting more data from TfL"
 
     # Get the bike hire data from TfL's API
@@ -57,9 +64,16 @@ def update_bike_data():
     db.session.commit()
 
 
-# Controller for listing all of the BikePoints
+"""
+Controllers
+"""
+
+
 @app.route("/")
 def index(error=""):
+    """
+    Controller for displaying all of the bike points
+    """
     update_bike_data_if_old()
 
     bikepoints = db.session.query(BikePoint).all()
@@ -68,14 +82,11 @@ def index(error=""):
                            error=error)
 
 
-@app.route("/about")
-def about_page():
-    return render_template('about.html')
-
-
-# Controller for a search where no query string is given.
 @app.route("/search/")
 def search_bikepoints():
+    """
+    Controller for displaying the results of a search for bike points
+    """
     query = request.args.get('query')
 
     # make sure it wasn't just a blank query
@@ -95,9 +106,11 @@ def search_bikepoints():
         return index(error=error)
 
 
-# Controller for a single BikePoint view
 @app.route("/bikepoint/<bikepoint_id>")
 def single_bikepoint(bikepoint_id):
+    """
+    Controller for displaying information about a single bike point
+    """
     update_bike_data_if_old()
 
     bikepoint = db.session.query(BikePoint).get(bikepoint_id)
@@ -108,33 +121,36 @@ def single_bikepoint(bikepoint_id):
         abort(404)
 
 
+@app.route("/about")
+def about_page():
+    """
+    Controller for displaying an About page
+    """
+    return render_template('about.html')
+
 
 """
 Controllers for returning information in JSON format
 """
 
-@app.route("/bikepoint_api/<bikepoint_id>")
-def single_bikepoint_json(bikepoint_id):
-    update_bike_data_if_old()
-
-    bikepoint = db.session.query(BikePoint).get(bikepoint_id)
-
-    if bikepoint:
-        return jsonify(bikepoint.serialize)
-    else:
-        abort(404)
-
 @app.route("/bikepoint_api")
 def all_bikepoints_json():
+    """
+    Returns a JSON object of all bike points in the database
+    """
     update_bike_data_if_old()
 
     bikepoints = db.session.query(BikePoint).all()
 
     return jsonify(json_list=[bp.serialize for bp in bikepoints])
 
-# Controller for a search where no query string is given.
+
 @app.route("/search_api/")
 def search_bikepoints_json():
+    """
+    Return a JSON object of all bike points whose names contain
+    the string 'query'
+    """
     query = request.args.get('query')
 
     # make sure it wasn't just a blank query
@@ -150,6 +166,27 @@ def search_bikepoints_json():
         return jsonify(error=error), 400
 
 
+@app.route("/bikepoint_api/<bikepoint_id>")
+def single_bikepoint_json(bikepoint_id):
+    """
+    Return the JSON data for a single bike point
+    """
+    update_bike_data_if_old()
+
+    bikepoint = db.session.query(BikePoint).get(bikepoint_id)
+
+    if bikepoint:
+        return jsonify(bikepoint.serialize)
+    else:
+        abort(404)
+
+
+"""
+Error handler
+"""
 @app.errorhandler(404)
 def page_not_found(e):
+    """
+    Displays a '404 File Not Found' page
+    """
     return render_template('404.html'), 404
