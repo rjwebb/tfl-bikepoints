@@ -16,23 +16,24 @@ from tfl_bikepoints.models import BikePoint, Meta
 BIKE_DATA_TIMEOUT = datetime.timedelta(seconds=60)
 
 
-def get_auth_from_environ():
-    app_id = os.environ.get('APP_ID',"")
-    app_key = os.environ.get('APP_KEY',"")
-    return app_id, app_key
-
 def update_bike_data_if_old(time_limit=BIKE_DATA_TIMEOUT):
     last_edited = Meta.get_last_edited()
     now = datetime.datetime.now()
 
+    # if the database is due an update
     if not last_edited or now - last_edited > BIKE_DATA_TIMEOUT:
         update_bike_data()
 
+        # update the last edited timestamp
+        Meta.update_last_edited()
+
 def update_bike_data():
     print "requesting more data from TfL"
-    bikepoint_data = TfL( auth=get_auth_from_environ() ).bikepoints()
 
-    start_t = datetime.datetime.now()
+    # Get the bike hire data from TfL's API
+    app_id = os.environ.get('APP_ID',"")
+    app_key = os.environ.get('APP_KEY',"")
+    bikepoint_data = TfL( auth=(app_id, app_key) ).bikepoints()
 
     # delete all the old bikepoint data points
     db.session.query(BikePoint).delete()
@@ -41,24 +42,20 @@ def update_bike_data():
     for bp in bikepoint_data:
         additional_properties = dict([ (x['key'],x['value']) for x in bp['additionalProperties']])
 
-        new_bp = BikePoint(
-            bp_id=bp['id'],
-            name=bp['commonName'],
-            lat=bp['lat'],
-            lon=bp['lon'],
-            nbDocks=additional_properties['NbDocks'],
-            nbBikes=additional_properties['NbBikes'],
-            nbEmptyDocks=additional_properties['NbEmptyDocks'])
+        # Create a BikePoint object
+        bp_obj = BikePoint(bp_id=bp['id'],
+                           name=bp['commonName'],
+                           lat=bp['lat'],
+                           lon=bp['lon'],
+                           nbDocks=additional_properties['NbDocks'],
+                           nbBikes=additional_properties['NbBikes'],
+                           nbEmptyDocks=additional_properties['NbEmptyDocks'])
 
-        db.session.add(new_bp)
+        # Add it to the database transaction
+        db.session.add(bp_obj)
 
+    # Commit the additions of the BikePoints to the database
     db.session.commit()
-
-    end_t = datetime.datetime.now()
-
-    print "database update took", (end_t - start_t)
-
-    Meta.update_last_edited()
 
 
 # Controller for listing all of the BikePoints
