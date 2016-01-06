@@ -14,6 +14,30 @@ from tfl_bikepoints import app, db
 from tfl_bikepoints.models import BikePoint, Meta
 
 
+def update_bike_data():
+    """
+    Update the bike point data from the TfL API
+    """
+    print "requesting more data from TfL"
+
+    # Get the bike hire data from TfL's API
+    app_id = os.environ.get('APP_ID',"")
+    app_key = os.environ.get('APP_KEY',"")
+    json_data = TfL( auth=(app_id, app_key) ).bikepoints()
+
+    # Convert the returned data to BikePoint objects
+    bikepoints = [BikePoint.from_json(j) for j in json_data]
+
+    # Delete all the old BikePoint objects from the database
+    db.session.query(BikePoint).delete()
+
+    # Add the all the new BikePoint objects to the database
+    db.session.add_all(bikepoints)
+
+    # Commit the transaction
+    db.session.commit()
+
+
 def update_bike_data_if_old(time_limit=app.config['BIKE_DATA_TIMEOUT']):
     """
     If the bike point data is out of date by more than time_limit,
@@ -28,40 +52,6 @@ def update_bike_data_if_old(time_limit=app.config['BIKE_DATA_TIMEOUT']):
 
         # update the last edited timestamp
         Meta.update_last_edited()
-
-
-def update_bike_data():
-    """
-    Update the bike point data from the TfL API
-    """
-    print "requesting more data from TfL"
-
-    # Get the bike hire data from TfL's API
-    app_id = os.environ.get('APP_ID',"")
-    app_key = os.environ.get('APP_KEY',"")
-    bikepoint_data = TfL( auth=(app_id, app_key) ).bikepoints()
-
-    # delete all the old bikepoint data points
-    db.session.query(BikePoint).delete()
-
-    # add the updated bikepoints to the db
-    for bp in bikepoint_data:
-        additional_properties = dict([ (x['key'],x['value']) for x in bp['additionalProperties']])
-
-        # Create a BikePoint object
-        bp_obj = BikePoint(bp_id=bp['id'],
-                           name=bp['commonName'],
-                           lat=bp['lat'],
-                           lon=bp['lon'],
-                           nbDocks=additional_properties['NbDocks'],
-                           nbBikes=additional_properties['NbBikes'],
-                           nbEmptyDocks=additional_properties['NbEmptyDocks'])
-
-        # Add it to the database transaction
-        db.session.add(bp_obj)
-
-    # Commit the additions of the BikePoints to the database
-    db.session.commit()
 
 
 """
