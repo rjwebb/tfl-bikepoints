@@ -78,6 +78,23 @@ class BikePoint(db.Model):
             'nbEmptyDocks' : self.nbEmptyDocks
         }
 
+
+    @staticmethod
+    def from_json(bp_json):
+        """
+        Returns a BikePoint object created from the result of TfL.bikepoints()
+        """
+        additional_properties = dict([ (x['key'],x['value']) for x in bp_json['additionalProperties']])
+
+        return BikePoint(bp_id=bp_json['id'],
+                         name=bp_json['commonName'],
+                         lat=bp_json['lat'],
+                         lon=bp_json['lon'],
+                         nbDocks=additional_properties['NbDocks'],
+                         nbBikes=additional_properties['NbBikes'],
+                         nbEmptyDocks=additional_properties['NbEmptyDocks'])
+
+
     def __repr__(self):
         return '<bp_id {}>'.format(self.bp_id)
 
