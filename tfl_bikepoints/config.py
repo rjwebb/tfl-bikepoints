@@ -9,7 +9,10 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
     SQLALCHEMY_TRACK_MODIFICATIONS = True
 
-    BIKE_DATA_TIMEOUT = datetime.timedelta(seconds=60)
+    t = os.environ.get('BIKE_DATA_TIMEOUT', "60")
+    timeout_seconds = int(t)
+
+    BIKE_DATA_TIMEOUT = datetime.timedelta(seconds=timeout_seconds)
 
 
 class ProductionConfig(Config):
@@ -28,4 +31,3 @@ class DevelopmentConfig(Config):
 
 class TestingConfig(Config):
     TESTING = True
-
