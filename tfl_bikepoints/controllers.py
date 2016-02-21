@@ -26,7 +26,10 @@ def update_bike_data():
     json_data = TfL( auth=(app_id, app_key) ).bikepoints()
 
     # Convert the returned data to BikePoint objects
-    bikepoints = [BikePoint.from_json(j) for j in json_data]
+    bikepoints = []
+    for j in json_data:
+        if j['commonName'] != "Test Desktop ":
+            bikepoints.append(BikePoint.from_json(j))
 
     # Delete all the old BikePoint objects from the database
     db.session.query(BikePoint).delete()
